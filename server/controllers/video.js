@@ -89,7 +89,11 @@ export const trend = async (req, res, next) => {
 export const sub = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
-    const subscribedChannels = user.subscribedUsers;
+    if (!user) {
+      return next(createError(404, "User not found!"));
+    }
+
+    const subscribedChannels = user.subscribedUsers || [];
 
     const list = await Promise.all(
       subscribedChannels.map(async (channelId) => {
@@ -102,6 +106,7 @@ export const sub = async (req, res, next) => {
     next(err);
   }
 };
+
 
 export const getByTag = async (req, res, next) => {
   const tags = req.query.tags.split(",");

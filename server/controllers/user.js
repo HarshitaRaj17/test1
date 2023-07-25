@@ -76,28 +76,36 @@ export const unsubscribe = async (req, res, next) => {
 };
 
 export const like = async (req, res, next) => {
-  const id = req.user.id;
+  const userId = req.user?.id;
   const videoId = req.params.videoId;
+  if (!userId) {
+    return next(createError(401, "User not authenticated!"));
+  }
+
   try {
-    await Video.findByIdAndUpdate(videoId,{
-      $addToSet:{likes:id},
-      $pull:{dislikes:id}
-    })
-    res.status(200).json("The video has been liked.")
+    await Video.findByIdAndUpdate(videoId, {
+      $addToSet: { likes: userId },
+      $pull: { dislikes: userId },
+    });
+    res.status(200).json("The video has been liked.");
   } catch (err) {
     next(err);
   }
 };
 
 export const dislike = async (req, res, next) => {
-    const id = req.user.id;
-    const videoId = req.params.videoId;
-    try {
-      await Video.findByIdAndUpdate(videoId,{
-        $addToSet:{dislikes:id},
-        $pull:{likes:id}
-      })
-      res.status(200).json("The video has been disliked.")
+  const userId = req.user?.id;
+  const videoId = req.params.videoId;
+  if (!userId) {
+    return next(createError(401, "User not authenticated!"));
+  }
+
+  try {
+    await Video.findByIdAndUpdate(videoId, {
+      $addToSet: { dislikes: userId },
+      $pull: { likes: userId },
+    });
+    res.status(200).json("The video has been disliked.");
   } catch (err) {
     next(err);
   }
