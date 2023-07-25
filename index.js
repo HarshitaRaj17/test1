@@ -1,15 +1,22 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import path from 'path';
+
 import userRoutes from "./routes/users.js";
 import videoRoutes from "./routes/videos.js";
 import commentRoutes from "./routes/comments.js";
 import authRoutes from "./routes/auth.js";
 import cookieParser from "cookie-parser";
-const PORT=process.env.PORT || 8800
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+const PORT = process.env.PORT || 8800;
 const app = express();
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const connect = () => {
   mongoose
@@ -39,6 +46,17 @@ app.use((err, req, res, next) => {
     status,
     message,
   });
+});
+
+app.use(express.static(path.join(__dirname, "./client/build")));
+
+app.get("*", function (_, res) {
+  res.sendFile(
+    path.join(__dirname, "./client/build/index.html"),
+    function (err) {
+      res.status(500).send(err);
+    }
+  );
 });
 
 app.listen(PORT, () => {
